@@ -49,6 +49,7 @@ SEXP predict_onehot(SEXP onehot, SEXP data) {
   int nrows = LENGTH(VECTOR_ELT(data, 0));
 
   for (int i = 0; i < LENGTH(onehot); i++) {
+    if (Rf_isString(VECTOR_ELT(data, i))) break;
     ncols += IS_FACTOR(onehot, i) ? LENGTH(LEVELS(onehot, i)) : 1;
   }
 
@@ -76,6 +77,8 @@ SEXP predict_onehot(SEXP onehot, SEXP data) {
       fill_logical(m, v, &pos);
     }
   }
+
+  /// TODO: Handle the column names here:
 
   Rprintf("Matrix cols: %d\n", ncols);
 

@@ -1,2 +1,0 @@
-#' @useDynLib onehot
-NULL

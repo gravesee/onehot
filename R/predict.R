@@ -1,11 +1,15 @@
+#' @useDynLib onehot
+NULL
 
-col_info <- function(x, name) {
+column_info <- function(x, name) {
   list(
     name = name,
     type = class(x),
     levels = levels(x))
 }
 
+#' Onehot encode a data.frame
+#' @param d
 #' @export
 onehot <- function(d, stringsAsFactors=FALSE) {
   stopifnot(inherits(d, "data.frame"))
@@ -17,7 +21,7 @@ onehot <- function(d, stringsAsFactors=FALSE) {
   }
 
   n <- names(d)
-  info <- Map(col_info, d, n)
+  info <- Map(column_info, d, n)
 
   structure(info, class = "onehot")
 }
@@ -35,6 +39,9 @@ predict.onehot <- function(object, data, ...) {
   ## make levels the same as the onehot object
   for (obj in object) {
     if (obj$type == "factor") {
+      if (is.character(data[[obj$name]])) {
+        data[[obj$name]] <- factor(data[[obj$name]])
+      }
       attr(data[[obj$name]], "levels") <- obj$levels
     }
   }
@@ -42,7 +49,6 @@ predict.onehot <- function(object, data, ...) {
   c_predict_onehot(object, data)
 }
 
-#' @export
 c_predict_onehot <- function(object, data) {
   .Call("predict_onehot", object, data[names(object)])
 }
