@@ -19,4 +19,3 @@ a matrix with factor variable onehot encoded
 \description{
 Predict onehot objects
 }
-

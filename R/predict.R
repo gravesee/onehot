@@ -22,27 +22,63 @@ make_names <- function(x) {
   unname(unlist(res))
 }
 
+
+#' @export
+summary.onehot <- function(object, ...) {
+
+  types <- sapply(object, "[[", "type")
+  ncols <- sapply(object, function(info) {
+    switch(info$type,
+      "factor" = length(info$levels),
+      "numeric" = 1,
+      "integer" = 1,
+      "logcial" = 1,
+      "default" = 0)
+  })
+
+  list(
+    types=table(types),
+    ncols=sum(ncols))
+
+}
+
+
+#' @export
+print.onehot <- function(x, ...) {
+  s <- summary(x)
+  cat("onehot object with following types:\n")
+  cat(sprintf(" |- %3d %ss\n", s$types, names(s$types)), sep="")
+  cat(sprintf("Producing matrix with %d columns\n", s$ncols))
+}
+
 #' Onehot encode a data.frame
 #' @param data data.frame to convert factors into onehot encoded columns
 #' @param stringsAsFactors if TRUE, converts character vectors to factors
 #' @param addNA if TRUE, adds NA to factors as a level
+#' @param max_levels maximum number of levels to onehot encode per factor
+#' variable. Factors with levels exceeding this number will be skipped.
 #' @return a \code{onehot} object descrbing how to transform the data
 #' @export
-onehot <- function(data, stringsAsFactors=FALSE, addNA=FALSE) {
+onehot <- function(data, stringsAsFactors=FALSE, addNA=FALSE, max_levels=10) {
   stopifnot(inherits(data, "data.frame"))
 
   if (stringsAsFactors) {
     for (i in seq_along(data)) {
       if (is.character(data[[i]])) data[[i]] <- factor(data[[i]])
     }
+  }
 
-    if (addNA) {
+  if (addNA) {
+    for (i in seq_along(data)) {
       if (is.factor(data[[i]])) data[[i]] <- addNA(data[[i]])
     }
   }
 
-  n <- names(data)
-  info <- Map(column_info, data, n)
+  nlevels <- sapply(data, function(x) length(levels(x)))
+  f <- nlevels <= max_levels
+
+  n <- names(data)[f]
+  info <- Map(column_info, data[f], n)
 
   res <- structure(info, class = "onehot")
   attr(res, "call") <- match.call()
