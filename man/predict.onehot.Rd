@@ -19,3 +19,8 @@ a matrix with factor variable onehot encoded
 \description{
 Predict onehot objects
 }
+\examples{
+data(iris)
+encoder <- onehot(iris)
+x <- predict(encoder, iris)
+}

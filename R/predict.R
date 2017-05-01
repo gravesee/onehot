@@ -58,6 +58,18 @@ print.onehot <- function(x, ...) {
 #' @param max_levels maximum number of levels to onehot encode per factor
 #' variable. Factors with levels exceeding this number will be skipped.
 #' @return a \code{onehot} object descrbing how to transform the data
+#' @examples
+#' data(iris)
+#' encoder <- onehot(iris)
+#'
+#' ## add NAs to factors
+#' encoder <- onehot(iris, addNA=TRUE)
+#'
+#' ## Convert character fields to factrs
+#' encoder <- onehot(iris, stringsAsFactors=TRUE)
+#'
+#' ## limit which factors are onehot encoded
+#' encoder <- onehot(iris, max_levels=5)
 #' @export
 onehot <- function(data, stringsAsFactors=FALSE, addNA=FALSE, max_levels=10) {
   stopifnot(inherits(data, "data.frame"))
@@ -77,6 +89,12 @@ onehot <- function(data, stringsAsFactors=FALSE, addNA=FALSE, max_levels=10) {
   nlevels <- sapply(data, function(x) length(levels(x)))
   f <- nlevels <= max_levels
 
+  if (any(!f)) {
+    n <- names(which(!f))
+    warning(sprintf("Variables excluded for having levels > max_levels: %s", n),
+      call. = F)
+  }
+
   n <- names(data)[f]
   info <- Map(column_info, data[f], n)
 
@@ -90,6 +108,10 @@ onehot <- function(data, stringsAsFactors=FALSE, addNA=FALSE, max_levels=10) {
 #' @param data a data.frame to onehot encode useing \code{object}
 #' @param ... further arguments passed to or from other methods
 #' @return a matrix with factor variable onehot encoded
+#' @examples
+#' data(iris)
+#' encoder <- onehot(iris)
+#' x <- predict(encoder, iris)
 #' @export
 predict.onehot <- function(object, data, ...) {
 

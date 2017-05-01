@@ -1,12 +1,11 @@
 Package: onehot
 Type: Package
-Title: Fast onehot encoding for data.frames
+Title: Fast Onehot Encoding for Data.frames
 Version: 0.1.0
-Author: Eric E. Graves
+Author: Eric E. Graves [aut, cre]
 Maintainer: Eric E. Graves <gravcon5@gmail.com>
-Description: onehot is used to quickly create numeric matrices for
-    machine learning algorithms that require them. It converts factor
-    columns into onehot vectors.
+Description: Quickly create numeric matrices for machine learning algorithms
+    that require them. It converts factor columns into onehot vectors.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

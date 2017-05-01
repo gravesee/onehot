@@ -22,3 +22,16 @@ a \code{onehot} object descrbing how to transform the data
 \description{
 Onehot encode a data.frame
 }
+\examples{
+data(iris)
+encoder <- onehot(iris)
+
+## add NAs to factors
+encoder <- onehot(iris, addNA=TRUE)
+
+## Convert character fields to factrs
+encoder <- onehot(iris, stringsAsFactors=TRUE)
+
+## limit which factors are onehot encoded
+encoder <- onehot(iris, max_levels=5)
+}
