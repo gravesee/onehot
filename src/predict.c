@@ -77,10 +77,7 @@ SEXP predict_onehot(SEXP onehot, SEXP data) {
       fill_logical(m, v, &pos);
     }
   }
-
-  /// TODO: Handle the column names here:
-
-  Rprintf("Matrix cols: %d\n", ncols);
+  //Rprintf("Matrix cols: %d\n", ncols);
 
   UNPROTECT(1);
   return result;

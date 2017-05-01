@@ -4,7 +4,17 @@
 \alias{onehot}
 \title{Onehot encode a data.frame}
 \usage{
-onehot(d, stringsAsFactors = FALSE)
+onehot(data, stringsAsFactors = FALSE, addNA = FALSE)
+}
+\arguments{
+\item{stringsAsFactors}{if TRUE, converts character vectors to factors}
+
+\item{addNA}{if TRUE, adds NA to factors as a level}
+
+\item{d}{data.frame to convert factors into onehot encoded columns}
+}
+\value{
+a \code{onehot} object descrbing how to transform the data
 }
 \description{
 Onehot encode a data.frame
