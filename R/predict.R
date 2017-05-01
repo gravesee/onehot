@@ -10,7 +10,9 @@ column_info <- function(x, name) {
 
 make_names <- function(x) {
   res <- lapply(x, function(i) {
-    if (i$type == "factor") {
+    if (i$type == "character") {
+      NULL
+    } else if (i$type == "factor") {
       paste(i$name, i$levels, sep="=")
     } else {
       i$name
@@ -21,7 +23,7 @@ make_names <- function(x) {
 }
 
 #' Onehot encode a data.frame
-#' @param d data.frame to convert factors into onehot encoded columns
+#' @param data data.frame to convert factors into onehot encoded columns
 #' @param stringsAsFactors if TRUE, converts character vectors to factors
 #' @param addNA if TRUE, adds NA to factors as a level
 #' @return a \code{onehot} object descrbing how to transform the data
@@ -39,8 +41,8 @@ onehot <- function(data, stringsAsFactors=FALSE, addNA=FALSE) {
     }
   }
 
-  n <- names(d)
-  info <- Map(column_info, d, n)
+  n <- names(data)
+  info <- Map(column_info, data, n)
 
   res <- structure(info, class = "onehot")
   attr(res, "call") <- match.call()
