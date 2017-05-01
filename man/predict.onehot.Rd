@@ -10,6 +10,8 @@
 \item{object}{an object of class \code{\link{onehot}}}
 
 \item{data}{a data.frame to onehot encode useing \code{object}}
+
+\item{...}{further arguments passed to or from other methods}
 }
 \value{
 a matrix with factor variable onehot encoded

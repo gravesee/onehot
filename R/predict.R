@@ -52,6 +52,7 @@ onehot <- function(data, stringsAsFactors=FALSE, addNA=FALSE) {
 #' Predict onehot objects
 #' @param object an object of class \code{\link{onehot}}
 #' @param data a data.frame to onehot encode useing \code{object}
+#' @param ... further arguments passed to or from other methods
 #' @return a matrix with factor variable onehot encoded
 #' @export
 predict.onehot <- function(object, data, ...) {
