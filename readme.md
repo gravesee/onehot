@@ -1,3 +1,6 @@
+[![Travis-CI Build
+Status](https://travis-ci.org/Zelazny7/onehot.svg?branch=master)](https://travis-ci.org/Zelazny7/onehot)
+
 Onehot package
 --------------
 

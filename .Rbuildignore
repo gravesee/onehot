@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^readme\.Rmd
 ^readme\.md
+^\.travis\.yml$
