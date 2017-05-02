@@ -22,7 +22,19 @@ make_names <- function(x) {
   unname(unlist(res))
 }
 
-
+#' Summarize onehot object
+#' @param object a onehot object
+#' @param ... other arguments pass to or from other functions
+#' @examples
+#' ## Create some dummy data with different column types
+#' x <- data.frame(HairEyeColor)
+#' x$Hair <- as.character(x$Hair)
+#'
+#' ## Create a onehot object
+#' encoder <- onehot(x)
+#'
+#' ## Return a list with summary information
+#' summary(encoder)
 #' @export
 summary.onehot <- function(object, ...) {
 
@@ -32,8 +44,8 @@ summary.onehot <- function(object, ...) {
       "factor" = length(info$levels),
       "numeric" = 1,
       "integer" = 1,
-      "logcial" = 1,
-      "default" = 0)
+      "logical" = 1,
+      0)
   })
 
   list(
@@ -43,6 +55,9 @@ summary.onehot <- function(object, ...) {
 }
 
 
+#' Print information about a onehot object
+#' @param x onehot object to print
+#' @param ... other arguments pass to or from other functions
 #' @export
 print.onehot <- function(x, ...) {
   s <- summary(x)
