@@ -84,6 +84,7 @@ SEXP predict_onehot(SEXP onehot, SEXP data) {
 
 }
 
+#ifdef OS_WINDOWS
 R_CallMethodDef callMethods[]  = {
   {"predict_onehot", (DL_FUNC) &predict_onehot, 2},
   {NULL, NULL, 0}
@@ -93,3 +94,4 @@ void R_init_onehot(DllInfo *info) {
   R_registerRoutines(info, NULL, callMethods, NULL, NULL);
   R_useDynamicSymbols(info, TRUE);
 }
+#endif

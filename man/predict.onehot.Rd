@@ -24,3 +24,4 @@ data(iris)
 encoder <- onehot(iris)
 x <- predict(encoder, iris)
 }
+
