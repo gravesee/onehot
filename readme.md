@@ -1,5 +1,6 @@
 [![Travis-CI Build
 Status](https://travis-ci.org/Zelazny7/onehot.svg?branch=master)](https://travis-ci.org/Zelazny7/onehot)
+![](http://cranlogs.r-pkg.org/badges/grand-total/onehot)
 
 Onehot package
 --------------
@@ -38,11 +39,22 @@ saved to transform future datasets into the same exact layout.
     library(onehot)
     encoder <- onehot(test)
 
+    ## printe a summary
+    encoder
+
+    ## onehot object with following types:
+    ##  |-   1 characters
+    ##  |-   1 factors
+    ##  |-   1 integers
+    ##  |-   1 logicals
+    ##  |-   1 numerics
+    ## Producing matrix with 7 columns
+
 ### Transforming data.frames
 
 The onehot object has a predict method which may be used to transform a
 data.frame. Factors are onehot encoded. Character variables are skipped.
-Hoever calling predict with `stringsAsFactors=TRUE` will convert
+However calling predict with `stringsAsFactors=TRUE` will convert
 character vectors to factors first.
 
     train_data <- predict(encoder, test)

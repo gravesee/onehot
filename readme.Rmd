@@ -39,13 +39,16 @@ transform future datasets into the same exact layout.
 ```{r}
 library(onehot)
 encoder <- onehot(test)
+
+## printe a summary
+encoder
 ```
 
 ### Transforming data.frames
 
 The onehot object has a predict method which may be used to transform a
 data.frame. Factors are onehot encoded. Character variables are skipped.
-Hoever calling predict with `stringsAsFactors=TRUE` will convert character
+However calling predict with `stringsAsFactors=TRUE` will convert character
 vectors to factors first.
 
 ```{r}
