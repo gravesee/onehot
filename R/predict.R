@@ -1,106 +1,20 @@
-#' @useDynLib onehot
-NULL
-
-column_info <- function(x, name) {
-  list(
-    name = name,
-    type = class(x),
-    levels = levels(x))
-}
-
 make_names <- function(x) {
+
+  addNA <- attr(x, "addNA")
+
   res <- lapply(x, function(i) {
     if (i$type == "character") {
       NULL
     } else if (i$type == "factor") {
-      paste(i$name, i$levels, sep="=")
+      x <- paste(i$name, i$levels, sep="=")
+      if (addNA) c(x, paste(i$name, "NA", sep="=")) else x
     } else {
-      i$name
+      x <- i$name
+      if (addNA) c(x, paste(i$name, "NA", sep="=")) else x
     }
   })
 
   unname(unlist(res))
-}
-
-
-#' @export
-summary.onehot <- function(object, ...) {
-
-  types <- sapply(object, "[[", "type")
-  ncols <- sapply(object, function(info) {
-    switch(info$type,
-      "factor" = length(info$levels),
-      "numeric" = 1,
-      "integer" = 1,
-      "logcial" = 1,
-      "default" = 0)
-  })
-
-  list(
-    types=table(types),
-    ncols=sum(ncols))
-
-}
-
-
-#' @export
-print.onehot <- function(x, ...) {
-  s <- summary(x)
-  cat("onehot object with following types:\n")
-  cat(sprintf(" |- %3d %ss\n", s$types, names(s$types)), sep="")
-  cat(sprintf("Producing matrix with %d columns\n", s$ncols))
-}
-
-#' Onehot encode a data.frame
-#' @param data data.frame to convert factors into onehot encoded columns
-#' @param stringsAsFactors if TRUE, converts character vectors to factors
-#' @param addNA if TRUE, adds NA to factors as a level
-#' @param max_levels maximum number of levels to onehot encode per factor
-#' variable. Factors with levels exceeding this number will be skipped.
-#' @return a \code{onehot} object descrbing how to transform the data
-#' @examples
-#' data(iris)
-#' encoder <- onehot(iris)
-#'
-#' ## add NAs to factors
-#' encoder <- onehot(iris, addNA=TRUE)
-#'
-#' ## Convert character fields to factrs
-#' encoder <- onehot(iris, stringsAsFactors=TRUE)
-#'
-#' ## limit which factors are onehot encoded
-#' encoder <- onehot(iris, max_levels=5)
-#' @export
-onehot <- function(data, stringsAsFactors=FALSE, addNA=FALSE, max_levels=10) {
-  stopifnot(inherits(data, "data.frame"))
-
-  if (stringsAsFactors) {
-    for (i in seq_along(data)) {
-      if (is.character(data[[i]])) data[[i]] <- factor(data[[i]])
-    }
-  }
-
-  if (addNA) {
-    for (i in seq_along(data)) {
-      if (is.factor(data[[i]])) data[[i]] <- addNA(data[[i]])
-    }
-  }
-
-  nlevels <- sapply(data, function(x) length(levels(x)))
-  f <- nlevels <= max_levels
-
-  if (any(!f)) {
-    n <- names(which(!f))
-    warning(sprintf("Variables excluded for having levels > max_levels: %s", n),
-      call. = F)
-  }
-
-  n <- names(data)[f]
-  info <- Map(column_info, data[f], n)
-
-  res <- structure(info, class = "onehot")
-  attr(res, "call") <- match.call()
-  res
 }
 
 #' Predict onehot objects
