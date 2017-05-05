@@ -8,29 +8,33 @@ column_info <- function(x, name) {
     levels = levels(x))
 }
 
-
+#' Summarize onehot object
+#' @param object onehot object to summarize
+#' @param ... further arguments passed to or from other methods
 #' @export
 summary.onehot <- function(object, ...) {
 
   addNA <- attr(object, "addNA")
 
   types <- sapply(object, "[[", "type")
-  ncols <- sapply(object, function(info) {
+  ncols <- vapply(object, function(info) {
     switch(info$type,
       "factor" = length(info$levels),
       "numeric" = 1,
       "integer" = 1,
       "logcial" = 1,
       "default" = 0)
-  })
+  }, FUN.VALUE = integer())
 
   list(
     types=table(types),
     ncols=sum(ncols),
-    NAcols=sum(ncols > 0))
+    NAcols=if (addNA) sum(ncols > 0) else 0)
 }
 
-
+#' Print information about onehot object
+#' @param x onehot object
+#' @param ... further arguments passed to or from other methods
 #' @export
 print.onehot <- function(x, ...) {
   s <- summary(x)
