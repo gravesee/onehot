@@ -9,4 +9,7 @@ Description: Quickly create numeric matrices for machine learning algorithms
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
+LinkingTo: Rcpp
+Imports: Rcpp
+Suggests: testthat

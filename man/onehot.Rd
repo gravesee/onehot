@@ -4,12 +4,12 @@
 \alias{onehot}
 \title{Onehot encode a data.frame}
 \usage{
-onehot(data, addNA = TRUE, stringsAsFactors = FALSE, max_levels = 10, ...)
+onehot(data, addNA = FALSE, stringsAsFactors = FALSE, max_levels = 10)
 }
 \arguments{
 \item{data}{data.frame to convert factors into onehot encoded columns}
 
-\item{addNA}{if TRUE, create indicator columns for all variables}
+\item{addNA}{if TRUE, all variables get an NA indicator}
 
 \item{stringsAsFactors}{if TRUE, converts character vectors to factors}
 
@@ -28,7 +28,7 @@ Onehot encode a data.frame
 data(iris)
 encoder <- onehot(iris)
 
-## add NAs indicator columns to all variables
+## add NA indicator columns
 encoder <- onehot(iris, addNA=TRUE)
 
 ## Convert character fields to factrs
