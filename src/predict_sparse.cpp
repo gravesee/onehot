@@ -50,6 +50,9 @@ List predict_onehot_sparse(List onehot, DataFrame df) {
   int _j = 0;
   double _val = 0.0;
 
+  IntegerVector i_test;
+
+
   for (int i = 0; i < onehot.size(); i++) {
     type = as<CharacterVector>(as<List>(onehot[i])[1]);
 
@@ -63,6 +66,8 @@ List predict_onehot_sparse(List onehot, DataFrame df) {
         _j = addNA ? ((v[row] == NA_INTEGER) ? lvls.size() + pos : v[row] + pos - 1) : v[row] + pos - 1;
         _val = 1.0;
         m.push_back((point){.i=_i, .j=_j, .val=_val});
+
+        i_test.push_back(_i);
       }
 
       pos += lvls.size() + addNA;
@@ -132,6 +137,7 @@ List predict_onehot_sparse(List onehot, DataFrame df) {
   ll["i"] = i_out;
   ll["j"] = j_out;
   ll["x"] = x_out;
+  ll["test"] = i_test;
 
   return ll;
 }
