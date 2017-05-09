@@ -1,6 +1,7 @@
 
 #' @useDynLib onehot
 #' @importFrom Rcpp sourceCpp
+#' @importFrom Matrix sparseMatrix
 NULL
 
 make_names <- function(x) {
