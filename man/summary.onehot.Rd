@@ -7,11 +7,22 @@
 \method{summary}{onehot}(object, ...)
 }
 \arguments{
-\item{object}{onehot object to summarize}
+\item{object}{a onehot object}
 
-\item{...}{further arguments passed to or from other methods}
+\item{...}{other arguments pass to or from other functions}
 }
 \description{
 Summarize onehot object
+}
+\examples{
+## Create some dummy data with different column types
+x <- data.frame(HairEyeColor)
+x$Hair <- as.character(x$Hair)
+
+## Create a onehot object
+encoder <- onehot(x)
+
+## Return a list with summary information
+summary(encoder)
 }
 

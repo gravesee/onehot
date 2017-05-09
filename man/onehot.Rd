@@ -15,8 +15,6 @@ onehot(data, addNA = FALSE, stringsAsFactors = FALSE, max_levels = 10)
 
 \item{max_levels}{maximum number of levels to onehot encode per factor
 variable. Factors with levels exceeding this number will be skipped.}
-
-\item{...}{further arguments passed to or from other methods}
 }
 \value{
 a \code{onehot} object descrbing how to transform the data
