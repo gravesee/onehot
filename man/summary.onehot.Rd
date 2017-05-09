@@ -25,4 +25,3 @@ encoder <- onehot(x)
 ## Return a list with summary information
 summary(encoder)
 }
-

@@ -29,6 +29,7 @@ make_names <- function(x) {
 ##' Predict onehot objects
 ##' @param object an object of class \code{\link{onehot}}
 ##' @param data a data.frame to onehot encode useing \code{object}
+##' @param sparse if TRUE, returns a \code{\link[Matrix]{dgCMatrix}}
 ##' @param ... further arguments passed to or from other methods
 ##' @return a matrix with factor variable onehot encoded
 ##' @examples
@@ -36,7 +37,7 @@ make_names <- function(x) {
 ##' encoder <- onehot(iris)
 ##' x <- predict(encoder, iris)
 ##' @export
-predict.onehot <- function(object, data, ...) {
+predict.onehot <- function(object, data, sparse=FALSE, ...) {
  ## check that vars are in data
  miss <- setdiff(names(object), names(data))
  if (length(miss)) {
@@ -53,12 +54,15 @@ predict.onehot <- function(object, data, ...) {
    }
  }
 
- s <- summary(object)
- dims <- c(nrow(data), s$ncols + s$nas)
+  s <- summary(object)
+  dims <- c(nrow(data), s$ncols + s$nas)
 
- m <- predict_onehot_sparse(object, data[names(object)])
- result <- Matrix::sparseMatrix(i=m$i, j=m$j, x=m$x, dims = dims)
-
+  if (sparse) {
+    m <- predict_onehot_sparse(object, data[names(object)])
+    result <- Matrix::sparseMatrix(i=m$i, j=m$j, x=m$x, dims = dims)
+  } else {
+    result <- predict_onehot_dense(object, data[names(object)])
+  }
 
  colnames(result) <- make_names(object)
  result

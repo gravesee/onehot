@@ -14,4 +14,3 @@
 \description{
 Print information about a onehot object
 }
-

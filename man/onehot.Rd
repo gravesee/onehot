@@ -35,4 +35,3 @@ encoder <- onehot(iris, stringsAsFactors=TRUE)
 ## limit which factors are onehot encoded
 encoder <- onehot(iris, max_levels=5)
 }
-

@@ -4,12 +4,14 @@
 \alias{predict.onehot}
 \title{Predict onehot objects}
 \usage{
-\method{predict}{onehot}(object, data, ...)
+\method{predict}{onehot}(object, data, sparse = FALSE, ...)
 }
 \arguments{
 \item{object}{an object of class \code{\link{onehot}}}
 
 \item{data}{a data.frame to onehot encode useing \code{object}}
+
+\item{sparse}{if TRUE, returns a \code{\link[Matrix]{dgCMatrix}}}
 
 \item{...}{further arguments passed to or from other methods}
 }
@@ -24,4 +26,3 @@ data(iris)
 encoder <- onehot(iris)
 x <- predict(encoder, iris)
 }
-
