@@ -18,14 +18,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // predict_onehot_libsvm
-SEXP predict_onehot_libsvm(List onehot, DataFrame df, NumericVector y, CharacterVector outfile);
+SEXP predict_onehot_libsvm(List onehot, DataFrame df, IntegerVector y, CharacterVector outfile);
 RcppExport SEXP onehot_predict_onehot_libsvm(SEXP onehotSEXP, SEXP dfSEXP, SEXP ySEXP, SEXP outfileSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type onehot(onehotSEXP);
     Rcpp::traits::input_parameter< DataFrame >::type df(dfSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type y(ySEXP);
     Rcpp::traits::input_parameter< CharacterVector >::type outfile(outfileSEXP);
     rcpp_result_gen = Rcpp::wrap(predict_onehot_libsvm(onehot, df, y, outfile));
     return rcpp_result_gen;

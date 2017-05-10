@@ -38,25 +38,36 @@ make_names <- function(x) {
 ##' x <- predict(encoder, iris)
 ##' @export
 predict.onehot <- function(object, data, sparse=FALSE, ...) {
- ## check that vars are in data
- miss <- setdiff(names(object), names(data))
- if (length(miss)) {
+
+  addNA <- attr(object, "addNA")
+
+  ## check that vars are in data
+  miss <- setdiff(names(object), names(data))
+  if (length(miss)) {
    stop("onehot variables missing from data: ",
         paste(miss, collapse = ", "), call. = F)
- }
- ## make levels the same as the onehot object
- for (obj in object) {
+  }
+  ## make levels the same as the onehot object
+  for (obj in object) {
    if (obj$type == "factor") {
      if (is.character(data[[obj$name]])) {
        data[[obj$name]] <- factor(data[[obj$name]])
      }
      attr(data[[obj$name]], "levels") <- obj$levels
    }
- }
+  }
 
   s <- summary(object)
   dims <- c(nrow(data), s$ncols + s$nas)
 
+  # if (libsvm) {
+  #   stopifnot(addNA)
+  #   stopifnot(!is.null(y))
+  #   stopifnot(length(y) == nrow(data))
+  #
+  #   predict_onehot_libsvm(object, data[names(object)], as.integer(y), outfile=outfile)
+  #   return(invisible())
+  # }
   if (sparse) {
     m <- predict_onehot_sparse(object, data[names(object)])
     result <- Matrix::sparseMatrix(i=m$i, j=m$j, x=m$x, dims = dims)
