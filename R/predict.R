@@ -1,9 +1,10 @@
-
-#' @useDynLib onehot
-#' @importFrom Rcpp sourceCpp
-#' @importFrom Matrix sparseMatrix
-NULL
-
+#' Make column names for a onehot object
+#' @param x a \code{\link{onehot}} object
+#' @examples
+#' data(iris)
+#' encoder <- onehot(iris)
+#' make_names(encoder)
+#' @export
 make_names <- function(x) {
 
   addNA <- attr(x, "addNA")
@@ -26,17 +27,18 @@ make_names <- function(x) {
 }
 
 
-##' Predict onehot objects
-##' @param object an object of class \code{\link{onehot}}
-##' @param data a data.frame to onehot encode useing \code{object}
-##' @param sparse if TRUE, returns a \code{\link[Matrix]{dgCMatrix}}
-##' @param ... further arguments passed to or from other methods
-##' @return a matrix with factor variable onehot encoded
-##' @examples
-##' data(iris)
-##' encoder <- onehot(iris)
-##' x <- predict(encoder, iris)
-##' @export
+#' Predict onehot objects
+#' @param object an object of class \code{\link{onehot}}
+#' @param data a data.frame to onehot encode useing \code{object}
+#' @param sparse if TRUE, returns a \code{\link[Matrix]{dgCMatrix-class}}
+#' @param ... further arguments passed to or from other methods
+#' @return a matrix with factor variable onehot encoded
+#' @examples
+#' data(iris)
+#' encoder <- onehot(iris)
+#' x <- predict(encoder, iris)
+#' x_sparse <- predict(encoder, iris, sparse=TRUE)
+#' @export
 predict.onehot <- function(object, data, sparse=FALSE, ...) {
 
   addNA <- attr(object, "addNA")
@@ -60,14 +62,6 @@ predict.onehot <- function(object, data, sparse=FALSE, ...) {
   s <- summary(object)
   dims <- c(nrow(data), s$ncols + s$nas)
 
-  # if (libsvm) {
-  #   stopifnot(addNA)
-  #   stopifnot(!is.null(y))
-  #   stopifnot(length(y) == nrow(data))
-  #
-  #   predict_onehot_libsvm(object, data[names(object)], as.integer(y), outfile=outfile)
-  #   return(invisible())
-  # }
   if (sparse) {
     m <- predict_onehot_sparse(object, data[names(object)])
     result <- Matrix::sparseMatrix(i=m$i, j=m$j, x=m$x, dims = dims)

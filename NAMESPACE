@@ -3,6 +3,7 @@
 S3method(predict,onehot)
 S3method(print,onehot)
 S3method(summary,onehot)
+export(make_names)
 export(onehot)
 importFrom(Matrix,sparseMatrix)
 importFrom(Rcpp,sourceCpp)

@@ -21,7 +21,7 @@ devtools::install_github("https://github.com/Zelazny7/onehot")
 set.seed(100)
 test <- data.frame(
   factor    = factor(sample(c(NA, letters[1:3]), 100, T), exclude=NULL),
-  integer   = as.integer(runif(100)),
+  integer   = as.integer(runif(100) * 10),
   real      = rnorm(100),
   logical   = sample(c(T, F), 100, T),
   character = sample(letters, 100, T),
@@ -53,5 +53,27 @@ vectors to factors first.
 
 ```{r}
 train_data <- predict(encoder, test)
+```
+knitr::kable(head(train_data))
+
+### NA indicator columns
+
+`addNA=TRUE` will create an indicator column for every valid input column. This
+is useful for algorithms that do not support missing values.
+
+```{r}
+encoder <- onehot(test, addNA=TRUE)
+train_data <- predict(encoder, test)
+```
+knitr::kable(head(train_data))
+
+### Sparse Matrices
+
+`onehot` also provides support for predicting sparse, column compressed matrices
+from the `Matrix` package:
+
+```{r}
+encoder <- onehot(test)
+train_data <- predict(encoder, test, sparse=TRUE)
 head(train_data)
 ```

@@ -26,16 +26,20 @@ List predict_onehot_sparse(List onehot, DataFrame df) {
   std::vector<int> j_vec;
   std::vector<double> x_vec;
 
-  for (int i = 0; i < onehot.size(); i++) {
+  for (size_t i = 0; i < onehot.size(); i++) {
 
     if (types[i] == "factor") {
 
       int nl = LENGTH(as<CharacterVector>(as<List>(onehot[i])[2]));
       int * v = INTEGER(df[i]);
 
-      for (int r = 0; r < nrows; r++) {
-        j = addNA ? ((v[r] == NA_INTEGER) ? nl + I : v[r] + I - 1) : v[r] + I - 1;
-        PUSH(r, j, 1.0)
+      for (size_t r = 0; r < nrows; r++) {
+        if (addNA) {
+          j = (v[r] == NA_INTEGER) ? nl + I : v[r] + I-1;
+          PUSH(r, j, 1.0)
+        } else if (v[r] != NA_INTEGER) {
+          PUSH(r, v[r] + I-1, 1.0)
+        }
       }
 
       I += nl + addNA;
@@ -44,7 +48,7 @@ List predict_onehot_sparse(List onehot, DataFrame df) {
 
       int * v = INTEGER(df[i]);
 
-      for (int r = 0; r < nrows; r++) {
+      for (size_t r = 0; r < nrows; r++) {
 
         if (v[r] != 0) {
           j = addNA ? ((v[r] == NA_INTEGER) ? I+1 : I) : I;
@@ -58,7 +62,7 @@ List predict_onehot_sparse(List onehot, DataFrame df) {
 
       double * v = REAL(df[i]);
 
-      for (int r = 0; r < nrows; r++) {
+      for (size_t r = 0; r < nrows; r++) {
 
         if (v[r] != 0) {
           j = addNA ? (ISNA(v[r]) ? I+1 : I) : I;
@@ -72,7 +76,7 @@ List predict_onehot_sparse(List onehot, DataFrame df) {
 
       int * v = INTEGER(df[i]);
 
-      for (int r = 0; r < nrows; r++) {
+      for (size_t r = 0; r < nrows; r++) {
 
         if (v[r] != 0) {
           j = addNA ? ((v[r] == NA_LOGICAL) ? I+1 : I) : I;

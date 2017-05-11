@@ -5,10 +5,6 @@ predict_onehot_dense <- function(onehot, df) {
     .Call('onehot_predict_onehot_dense', PACKAGE = 'onehot', onehot, df)
 }
 
-predict_onehot_libsvm <- function(onehot, df, y, outfile) {
-    .Call('onehot_predict_onehot_libsvm', PACKAGE = 'onehot', onehot, df, y, outfile)
-}
-
 predict_onehot_sparse <- function(onehot, df) {
     .Call('onehot_predict_onehot_sparse', PACKAGE = 'onehot', onehot, df)
 }

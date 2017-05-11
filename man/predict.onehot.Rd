@@ -11,7 +11,7 @@
 
 \item{data}{a data.frame to onehot encode useing \code{object}}
 
-\item{sparse}{if TRUE, returns a \code{\link[Matrix]{dgCMatrix}}}
+\item{sparse}{if TRUE, returns a \code{\link[Matrix]{dgCMatrix-class}}}
 
 \item{...}{further arguments passed to or from other methods}
 }
@@ -25,4 +25,5 @@ Predict onehot objects
 data(iris)
 encoder <- onehot(iris)
 x <- predict(encoder, iris)
+x_sparse <- predict(encoder, iris, sparse=TRUE)
 }

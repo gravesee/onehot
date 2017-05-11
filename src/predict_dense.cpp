@@ -4,12 +4,14 @@
 #include <Rdefines.h>
 using namespace Rcpp;
 
-#define PUSH(r, j, x) REAL(m)[r +  j * nrows] = x;
+#define DEBUG
+
+#define PUSH(r, j, x) REAL(m)[(r) +  (j) * nrows] = (x);
 
 int calculate_column_size(List onehot, std::vector<std::string> types, int addNA) {
 
   int ncols = 0;
-  for (int i = 0; i < types.size(); i++) {
+  for (unsigned i = 0; i < types.size(); i++) {
 
     if (types[i] == "factor") {
       CharacterVector lvls = as<CharacterVector>(as<List>(onehot[i])[2]);
@@ -30,21 +32,28 @@ NumericMatrix predict_onehot_dense(List onehot, DataFrame df) {
 
   // load encoder types in vector
   std::vector< std::string > types;
-  for (int i = 0; i < onehot.size(); i++) {
+  for (unsigned i = 0; i < onehot.size(); i++) {
     types.push_back((char *) as<CharacterVector>(as<List>(onehot[i])[1])[0]);
   }
 
   // allocate space for matrix
   size_t ncols = calculate_column_size(onehot, types, addNA);
-
   size_t nrows = df.nrow();
   SEXP m = PROTECT(Rf_allocMatrix(REALSXP, nrows, ncols));
+
+  if (m == NULL) {
+    Rcpp::stop("Could not allocate matrix of size %d\n", nrows * ncols);
+  }
+
+  //Rprintf("Matrix dims: (%d,%d)\n", nrows, ncols);
 
   // fill with zeros
   #pragma omp parallel for
   for (size_t i = 0; i < nrows * ncols; i++) {
     REAL(m)[i] = 0;
   }
+
+#ifdef DEBUG
 
   int I = 0; // column position
   int j = 0; // column to assign
@@ -60,8 +69,12 @@ NumericMatrix predict_onehot_dense(List onehot, DataFrame df) {
 
       #pragma omp parallel for
       for (size_t r = 0; r < nrows; r++) {
-        j = addNA ? ((v[r] == NA_INTEGER) ? nl + I : v[r] + I-1) : v[r] + I-1;
-        PUSH(r, j, 1.0)
+        if (addNA) {
+          j = (v[r] == NA_INTEGER) ? nl + I : v[r] + I-1;
+          PUSH(r, j, 1.0)
+        } else if (v[r] != NA_INTEGER) {
+          PUSH(r, v[r] + I-1, 1.0)
+        }
       }
 
       I += nl + addNA;
@@ -116,6 +129,7 @@ NumericMatrix predict_onehot_dense(List onehot, DataFrame df) {
 
   } // end loop over onehot
 
+#endif
   UNPROTECT(1);
   return m;
 }

@@ -1,3 +1,5 @@
+#' @importFrom Rcpp sourceCpp
+#' @importFrom Matrix sparseMatrix
 #' @useDynLib onehot
 NULL
 
@@ -67,6 +69,17 @@ print.onehot <- function(x, ...) {
 #' @param stringsAsFactors if TRUE, converts character vectors to factors
 #' @param max_levels maximum number of levels to onehot encode per factor
 #' variable. Factors with levels exceeding this number will be skipped.
+#' @details By default, with \code{addNA=FALSE}, no NAs are returned for
+#' non-factor columns. Indicator columns are created for factor levels and NA
+#' factors are ignored. The exception is when NA is an explicit factor level.
+#'
+#' \code{stringsAsFactrs=TRUE} will convert character columns to factors first.
+#' Other wise characters are ignored. Only factor, numeric, integer, and logical
+#' vectors are valid for onehot. Other classes will be skipped entirely.
+#'
+#' \code{addNA=TRUE} will create indicator columns for every field. This will
+#' add ncols columns to the output matrix. A sparse matrix may be better in
+#' such cases.
 #' @return a \code{onehot} object descrbing how to transform the data
 #' @examples
 #' data(iris)
@@ -100,6 +113,11 @@ onehot <- function(data, addNA=FALSE, stringsAsFactors=FALSE, max_levels=10) {
   }
 
   k <- sapply(data, class) %in% allowed_classes
+  if (length(names(data)[!k])) {
+    warning(sprintf("Variables excluded for having unsupported types: %s",
+      names(data)[!k]), call. = F)
+  }
+
   n <- names(data)[f & k]
 
   info <- Map(column_info, data[n], n)

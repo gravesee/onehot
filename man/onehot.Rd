@@ -22,6 +22,19 @@ a \code{onehot} object descrbing how to transform the data
 \description{
 Onehot encode a data.frame
 }
+\details{
+By default, with \code{addNA=FALSE}, no NAs are returned for
+non-factor columns. Indicator columns are created for factor levels and NA
+factors are ignored. The exception is when NA is an explicit factor level.
+
+\code{stringsAsFactrs=TRUE} will convert character columns to factors first.
+Other wise characters are ignored. Only factor, numeric, integer, and logical
+vectors are valid for onehot. Other classes will be skipped entirely.
+
+\code{addNA=TRUE} will create indicator columns for every field. This will
+add ncols columns to the output matrix. A sparse matrix may be better in
+such cases.
+}
 \examples{
 data(iris)
 encoder <- onehot(iris)
