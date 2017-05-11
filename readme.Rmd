@@ -7,6 +7,10 @@ output: md_document
 
 [![Travis-CI Build Status](https://travis-ci.org/Zelazny7/onehot.svg?branch=master)](https://travis-ci.org/Zelazny7/onehot)
 
+```{r, echo=FALSE}
+options(width=250)
+```
+
 ## Onehot package
 
 ### Installation
@@ -53,8 +57,8 @@ vectors to factors first.
 
 ```{r}
 train_data <- predict(encoder, test)
+head(train_data)
 ```
-knitr::kable(head(train_data))
 
 ### NA indicator columns
 
@@ -64,8 +68,9 @@ is useful for algorithms that do not support missing values.
 ```{r}
 encoder <- onehot(test, addNA=TRUE)
 train_data <- predict(encoder, test)
+head(train_data)
 ```
-knitr::kable(head(train_data))
+
 
 ### Sparse Matrices
 

@@ -61,8 +61,15 @@ However calling predict with `stringsAsFactors=TRUE` will convert
 character vectors to factors first.
 
     train_data <- predict(encoder, test)
+    head(train_data)
 
-knitr::kable(head(train\_data))
+    ##      factor=a factor=b factor=c factor=NA integer       real logical
+    ## [1,]        1        0        0         0       3 -0.3329234       0
+    ## [2,]        1        0        0         0       3  1.3631137       1
+    ## [3,]        0        1        0         0       0 -0.4691473       1
+    ## [4,]        0        0        0         1       3  0.8428756       1
+    ## [5,]        1        0        0         0       5 -1.4579937       0
+    ## [6,]        1        0        0         0       6 -0.4003059       0
 
 ### NA indicator columns
 
@@ -75,8 +82,15 @@ values.
     ## Warning: Variables excluded for having unsupported types: character
 
     train_data <- predict(encoder, test)
+    head(train_data)
 
-knitr::kable(head(train\_data))
+    ##      factor=a factor=b factor=c factor=NA factor=NA integer integer=NA       real real=NA logical logical=NA
+    ## [1,]        1        0        0         0         0       3          0 -0.3329234       0       0          0
+    ## [2,]        1        0        0         0         0       3          0  1.3631137       0       1          0
+    ## [3,]        0        1        0         0         0       0          0 -0.4691473       0       1          0
+    ## [4,]        0        0        0         1         0       3          0  0.8428756       0       1          0
+    ## [5,]        1        0        0         0         0       5          0 -1.4579937       0       0          0
+    ## [6,]        1        0        0         0         0       6          0 -0.4003059       0       0          0
 
 ### Sparse Matrices
 
