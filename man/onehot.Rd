@@ -4,17 +4,18 @@
 \alias{onehot}
 \title{Onehot encode a data.frame}
 \usage{
-onehot(data, addNA = FALSE, stringsAsFactors = FALSE, max_levels = 10)
+onehot(data, sentinel = .Machine$double.xmin, stringsAsFactors = FALSE,
+  max_levels = 10)
 }
 \arguments{
 \item{data}{data.frame to convert factors into onehot encoded columns}
-
-\item{addNA}{if TRUE, all variables get an NA indicator}
 
 \item{stringsAsFactors}{if TRUE, converts character vectors to factors}
 
 \item{max_levels}{maximum number of levels to onehot encode per factor
 variable. Factors with levels exceeding this number will be skipped.}
+
+\item{addNA}{if TRUE, all variables get an NA indicator}
 }
 \value{
 a \code{onehot} object descrbing how to transform the data
