@@ -1,7 +1,7 @@
 Package: onehot
 Type: Package
 Title: Fast Onehot Encoding for Data.frames
-Version: 0.1.1.9000
+Version: 0.1.2
 Author: Eric E. Graves [aut, cre]
 Maintainer: Eric E. Graves <gravcon5@gmail.com>
 Description: Quickly create numeric matrices for machine learning algorithms
