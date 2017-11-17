@@ -41,17 +41,14 @@ saved to transform future datasets into the same exact layout.
 
     encoder <- onehot(test)
 
-    ## Warning: Variables excluded for having unsupported types: character
+    ## Warning: Variables excluded for having levels > max_levels: character
 
     ## printe a summary
     encoder
 
-    ## onehot object with following types:
-    ##  |-   1 factors
-    ##  |-   1 integers
-    ##  |-   1 logicals
-    ##  |-   1 numerics
-    ## Producing matrix with 7 columns
+    ## Onehot Specification
+    ## |-   1 Factors  => 5 Indicators 
+    ## |-   3 Numerics => (NA <- -999)
 
 ### Transforming data.frames
 
@@ -63,13 +60,13 @@ character vectors to factors first.
     train_data <- predict(encoder, test)
     head(train_data)
 
-    ##      factor=a factor=b factor=c factor=NA integer       real logical
-    ## [1,]        1        0        0         0       3 -0.3329234       0
-    ## [2,]        1        0        0         0       3  1.3631137       1
-    ## [3,]        0        1        0         0       0 -0.4691473       1
-    ## [4,]        0        0        0         1       3  0.8428756       1
-    ## [5,]        1        0        0         0       5 -1.4579937       0
-    ## [6,]        1        0        0         0       6 -0.4003059       0
+    ##      factor_a factor_b factor_c factor_NA factor_NA integer       real logical
+    ## [1,]        1        0        0         0         0       3 -0.3329234       0
+    ## [2,]        1        0        0         0         0       3  1.3631137       1
+    ## [3,]        0        1        0         0         0       0 -0.4691473       1
+    ## [4,]        0        0        0         1         0       3  0.8428756       1
+    ## [5,]        1        0        0         0         0       5 -1.4579937       0
+    ## [6,]        1        0        0         0         0       6 -0.4003059       0
 
 ### NA indicator columns
 
@@ -77,20 +74,9 @@ character vectors to factors first.
 column. This is useful for algorithms that do not support missing
 values.
 
-    encoder <- onehot(test, addNA=TRUE)
-
-    ## Warning: Variables excluded for having unsupported types: character
-
-    train_data <- predict(encoder, test)
-    head(train_data)
-
-    ##      factor=a factor=b factor=c factor=NA factor=NA integer integer=NA       real real=NA logical logical=NA
-    ## [1,]        1        0        0         0         0       3          0 -0.3329234       0       0          0
-    ## [2,]        1        0        0         0         0       3          0  1.3631137       0       1          0
-    ## [3,]        0        1        0         0         0       0          0 -0.4691473       0       1          0
-    ## [4,]        0        0        0         1         0       3          0  0.8428756       0       1          0
-    ## [5,]        1        0        0         0         0       5          0 -1.4579937       0       0          0
-    ## [6,]        1        0        0         0         0       6          0 -0.4003059       0       0          0
+    #encoder <- onehot(test, addNA=TRUE)
+    #train_data <- predict(encoder, test)
+    #head(train_data)
 
 ### Sparse Matrices
 
@@ -99,16 +85,16 @@ matrices from the `Matrix` package:
 
     encoder <- onehot(test)
 
-    ## Warning: Variables excluded for having unsupported types: character
+    ## Warning: Variables excluded for having levels > max_levels: character
 
     train_data <- predict(encoder, test, sparse=TRUE)
     head(train_data)
 
-    ## 6 x 7 sparse Matrix of class "dgCMatrix"
-    ##      factor=a factor=b factor=c factor=NA integer       real logical
-    ## [1,]        1        .        .         .       3 -0.3329234       .
-    ## [2,]        1        .        .         .       3  1.3631137       1
-    ## [3,]        .        1        .         .       . -0.4691473       1
-    ## [4,]        .        .        .         1       3  0.8428756       1
-    ## [5,]        1        .        .         .       5 -1.4579937       .
-    ## [6,]        1        .        .         .       6 -0.4003059       .
+    ## 6 x 8 sparse Matrix of class "dgCMatrix"
+    ##      factor_a factor_b factor_c factor_NA factor_NA integer       real logical
+    ## [1,]        1        .        .         .         .       3 -0.3329234       .
+    ## [2,]        1        .        .         .         .       3  1.3631137       1
+    ## [3,]        .        1        .         .         .       . -0.4691473       1
+    ## [4,]        .        .        .         1         .       3  0.8428756       1
+    ## [5,]        1        .        .         .         .       5 -1.4579937       .
+    ## [6,]        1        .        .         .         .       6 -0.4003059       .

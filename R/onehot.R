@@ -1,12 +1,37 @@
 #' @importFrom Matrix sparseMatrix
 NULL
 
-column_info <- function(x, name) {
-  structure(list(
-    name = name,
-    type = class(x),
-    levels = if (is.factor(x)) levels(x) else character(0)),
-    class="column_info")
+#' @export
+column_info <- function(name, type, ...) {
+  res <- structure(list(name=name, type=type), class="column_info")
+  switch(type,
+    "numeric" = column_info_numeric(res, ...),
+    "factor"  = column_info_factor(res, ...),
+    "default" = stop("Unsupported column info type"))
+}
+
+#' @export
+column_info_numeric <- function(x, sentinel) {
+  x$sentinel <- sentinel
+  class(x) <- c(class(x), "column_info_numeric")
+  x
+}
+
+#' @export
+column_info_factor <- function(x, levels) {
+  x$levels <- levels
+  class(x) <- c(class(x), "column_info_factor")
+  x
+}
+
+#' @export
+summary.column_info_factor <- function(object, ...) {
+  with(object, c(type=2, ncol=length(levels), nas=sum(is.na(levels))))
+}
+
+#' @export
+summary.column_info_numeric <- function(object, ...) {
+  with(object, c(type=1, ncol=1, nas=0))
 }
 
 #' Summarize onehot object
@@ -24,25 +49,7 @@ column_info <- function(x, name) {
 #' summary(encoder)
 #' @export
 summary.onehot <- function(object, ...) {
-
-  types <- modifyList(list("factor"=0, "numeric"=0),
-    as.list(table(sapply(object, "[[", "type"))))
-  types <- unlist(types)
-
-  ncols <- vapply(object, function(info) {
-    switch(info$type,
-      "factor" = length(info$levels),
-      "numeric" = 1L,
-      0L)
-  }, FUN.VALUE = integer(1))
-
-  nas <- sum(sapply(object, function(i) any(is.na(i$levels))))
-
-  list(
-    types=types,
-    ncols=sum(ncols),
-    nas=nas)
-
+  t(sapply(object, summary))
 }
 
 
@@ -51,60 +58,57 @@ summary.onehot <- function(object, ...) {
 #' @param ... other arguments pass to or from other functions
 #' @export
 print.onehot <- function(x, ...) {
-  add_NA_factors <- attr(x, "add_NA_factors")
-  sentinel <- as.numeric(attr(x, "sentinel"))
 
-  factor_lvls <-
-
+  sentinel <- attr(x, "sentinel")
   s <- summary(x)
-  cat("Onehot object with following specification:\n")
-  cat(sprintf(" |- %d columns", s$ncols - s$types["numeric"]), sep="")
-  cat(sprintf(" from %d factor variables\n", s$types["factor"]), sep="")
-  cat(sprintf(" |- %d numeric columns\n", s$types["numeric"]), sep="")
-  cat(sprintf(" |- Producing matrix with %d columns\n", s$ncols), sep="")
+  nf <- sum(s[,'type'] == 2)
+  nn <- sum(s[,'type'] == 1)
+  ni <- sum(s[s[,'type'] == 2, 'ncol'])
 
-  cat(sprintf(" |- Replace numeric-NAs with %.0f\n", sentinel), sep="")
-if (is.logical(add_NA_factors) && add_NA_factors[1]) {
-    cat(sprintf(" |- Adding %d NA indicators for ALL factors\n", s$nas), sep="")
-  } else if (is.character(add_NA_factors)) {
-    cat(sprintf("Adding %d NA indicators for:\n", s$nas), sep="")
-    cat(sprintf("  %s\n", add_NA_factors), sep="")
-  }
+  cat(
+    "Onehot Specification",
+    sprintf("|- %3d Factors  => %d Indicators ", nf, ni),
+    sprintf("|- %3d Numerics => (NA <- %.0f)", nn, sentinel),
+    sep="\n")
 
 }
 
 
+get_column_info_ <- function(data, add_NA_factors, sentinel) {
 
-preprocess_data_ <- function(data, sentinel=.Machine$double.xmin, add_NA_factors=TRUE) {
+  res <- list()
 
   for (i in seq_along(data)) {
+    name <- names(data[i])
+    x <- data[[i]]
 
-    if (is.character(data[[i]])) data[[i]] <- factor(data[[i]])
+    ## check various conditions
+    if (!(is.character(x) | is.factor(x))) {
+      res[[i]] <- column_info(name, "numeric", sentinel=sentinel)
+    } else {
 
-    if (!is.factor(data[[i]])) {
-      data[[i]] <- as.numeric(data[[i]])
-      data[[i]][is.na(data[[i]])] <- sentinel
-    }
-
-    ## proccess ALL factors for NA if logical is passed
-    if (is.logical(add_NA_factors) && add_NA_factors[1]) {
-      if (is.factor(data[[i]])) data[[i]] <- addNA(data[[i]])
-    }
-  }
-
-  ## set NA factors if a character vector is passed
-  if (is.character(add_NA_factors)) {
-    for (v in add_NA_factors) {
-      if (!is.null(data[[v]]) && is.factor(data[[v]])) {
-        data[[v]] <- addNA(data[[v]])
-      } else {
-        warning(v, " is not in data or is not a factor.", call. = FALSE)
+      lvls <- as.character(sort(unique(x)))
+      if (is.logical(add_NA_factors)) {
+        if (add_NA_factors[1]) {
+          res[[i]] <- column_info(name, "factor", levels=c(lvls, NA))
+        } else {
+          res[[i]] <- column_info(name, "factor", levels=lvls)
+        }
+      } else if (is.character(add_NA_factors)) {
+        if (name %in% add_NA_factors) {
+          res[[i]] <- column_info(name, "factor", levels=c(lvls, NA))
+        } else {
+          res[[i]] <- column_info(name, "factor", levels=lvls)
+        }
       }
     }
+
   }
 
-  data
+  names(res) <- names(data)
+  res
 }
+
 
 #' Onehot encode a data.frame
 #' @param data data.frame to convert factors into onehot encoded columns
@@ -141,10 +145,9 @@ onehot <- function(data, sentinel=-999, max_levels=10, add_NA_factors=TRUE) {
 
   stopifnot(inherits(data, "data.frame"))
 
-  ## Process data.frame according to arguments
-  data <- preprocess_data_(data, sentinel=sentinel, add_NA_factors=add_NA_factors)
+  info <- get_column_info_(data, add_NA_factors, sentinel)
 
-  nlevels <- sapply(data, function(x) length(levels(x)))
+  nlevels <- sapply(info, function(x) length(x$levels))
   f <- nlevels <= max_levels
 
   if (any(!f)) {
@@ -153,11 +156,7 @@ onehot <- function(data, sentinel=-999, max_levels=10, add_NA_factors=TRUE) {
       call. = F)
   }
 
-  n <- names(data)[f]
-
-  info <- Map(column_info, data[n], n)
-
-  res <- structure(info, class = "onehot")
+  res <- structure(info[f], class = "onehot")
   attr(res, "call") <- match.call()
   attr(res, "sentinel") <- sentinel
   attr(res, "add_NA_factors") <- add_NA_factors

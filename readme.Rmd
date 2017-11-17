@@ -66,9 +66,9 @@ head(train_data)
 is useful for algorithms that do not support missing values.
 
 ```{r}
-encoder <- onehot(test, addNA=TRUE)
-train_data <- predict(encoder, test)
-head(train_data)
+#encoder <- onehot(test, addNA=TRUE)
+#train_data <- predict(encoder, test)
+#head(train_data)
 ```
 
 
