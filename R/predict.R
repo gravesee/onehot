@@ -102,22 +102,3 @@ predict.onehot <- function(object, data, sparse=FALSE, sep="_", ...) {
   colnames(res) <- unlist(lapply(object, make_names, sep=sep), use.names = F)
   res
 }
-
-#' #' @export
-#' `[.onehot` <- function(x, i, j, ...) {
-#'
-#'   rng <- abs(range(i))
-#'   stopifnot(rng[1] > 0 && rng[2] <= length(x))
-#'
-#'   a <- attributes(x)
-#'   res <- unclass(x)[i]
-#'
-#'   attr(res, "names") <- a$names[i]
-#'   attr(res, "call") <- a$call
-#'   attr(res, "sentinel") <- a$sentinel
-#'   attr(res, "add_NA_factors") <- a$add_NA_factors
-#'
-#'   class(res) <- "onehot"
-#'
-#'   res
-#' }
