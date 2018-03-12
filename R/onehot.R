@@ -73,7 +73,6 @@ print.onehot <- function(x, ...) {
 
 }
 
-
 get_column_info_ <- function(data, add_NA_factors, sentinel) {
 
   res <- list()
@@ -82,27 +81,16 @@ get_column_info_ <- function(data, add_NA_factors, sentinel) {
     name <- names(data[i])
     x <- data[[i]]
 
-    ## check various conditions
-    if (!(is.character(x) | is.factor(x))) {
+    if (!(is.factor(x) || is.character(x))) {
       res[[i]] <- column_info(name, "numeric", sentinel=sentinel)
     } else {
 
-      lvls <- as.character(sort(unique(x)))
-      if (is.logical(add_NA_factors)) {
-        if (add_NA_factors[1]) {
-          res[[i]] <- column_info(name, "factor", levels=c(lvls, NA))
-        } else {
-          res[[i]] <- column_info(name, "factor", levels=lvls)
-        }
-      } else if (is.character(add_NA_factors)) {
-        if (name %in% add_NA_factors) {
-          res[[i]] <- column_info(name, "factor", levels=c(lvls, NA))
-        } else {
-          res[[i]] <- column_info(name, "factor", levels=lvls)
-        }
+      if (add_NA_factors) {
+        res[[i]] <- column_info(name, "factor", levels=levels(addNA(factor(x))))
+      } else {
+        res[[i]] <- column_info(name, "factor", levels=levels(factor(x)))
       }
     }
-
   }
 
   names(res) <- names(data)
@@ -110,36 +98,28 @@ get_column_info_ <- function(data, add_NA_factors, sentinel) {
 }
 
 
-#' Onehot encode a data.frame
+#' Onehot Encode a data.frame
+#'
 #' @param data data.frame to convert factors into onehot encoded columns
-#' @param addNA if TRUE, all variables get an NA indicator
-#' @param stringsAsFactors if TRUE, converts character vectors to factors
+#' @param sentinel Numeric value with which to replace NAs. Applies to numeric
+#' columns only.
 #' @param max_levels maximum number of levels to onehot encode per factor
 #' variable. Factors with levels exceeding this number will be skipped.
-#' @details By default, with \code{addNA=FALSE}, no NAs are returned for
-#' non-factor columns. Indicator columns are created for factor levels and NA
-#' factors are ignored. The exception is when NA is an explicit factor level.
+#' @param add_NA_factors if TRUE, adds NA indicator column for factors.
 #'
-#' \code{stringsAsFactrs=TRUE} will convert character columns to factors first.
-#' Other wise characters are ignored. Only factor, numeric, integer, and logical
-#' vectors are valid for onehot. Other classes will be skipped entirely.
-#'
-#' \code{addNA=TRUE} will create indicator columns for every field. This will
-#' add ncols columns to the output matrix. A sparse matrix may be better in
-#' such cases.
 #' @return a \code{onehot} object descrbing how to transform the data
 #' @examples
 #' data(iris)
 #' encoder <- onehot(iris)
 #'
 #' ## add NA indicator columns
-#' encoder <- onehot(iris, addNA=TRUE)
-#'
-#' ## Convert character fields to factrs
-#' encoder <- onehot(iris, stringsAsFactors=TRUE)
+#' encoder <- onehot(iris, add_NA_factors=TRUE)
 #'
 #' ## limit which factors are onehot encoded
 #' encoder <- onehot(iris, max_levels=5)
+#'
+#' ## Impute numeric NA values with sentinel value
+#' encoder <- onehot(iris, sentinel=-1)
 #' @export
 onehot <- function(data, sentinel=-999, max_levels=10, add_NA_factors=TRUE) {
 

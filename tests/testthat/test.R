@@ -24,8 +24,6 @@ test_that("Number of columns dense", {
   expect_equal(ncol(predict(onehot(test), test)),
     sum(1L, 1L, length(levels(test$factor)) + 1L, 1L, 1L, length(unique(test$character)) + 1L))
 
-  expect_equal(ncol(predict(onehot(test, add_NA_factors="factor"), test)),
-    sum(1L, 1L, length(levels(test$factor)) + 1L, 1L, 1L, length(unique(test$character))))
 })
 
 test_that("Number of columns dense with add_NA_factors=FALSE", {
@@ -55,9 +53,6 @@ test_that("Number of columns sparse", {
 
   expect_equal(ncol(predict(onehot(test), test, sparse=TRUE)),
     sum(1L, 1L, length(levels(test$factor)) + 1L, 1L, 1L, length(unique(test$character)) + 1L))
-
-  expect_equal(ncol(predict(onehot(test, add_NA_factors="factor"), test, sparse=TRUE)),
-    sum(1L, 1L, length(levels(test$factor)) + 1L, 1L, 1L, length(unique(test$character))))
 
 })
 

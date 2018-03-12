@@ -12,7 +12,7 @@ Onehot package
 
     set.seed(100)
     test <- data.frame(
-      factor    = factor(sample(c(NA, letters[1:3]), 100, T), exclude=NULL),
+      factor    = factor(sample(c(NA, letters[1:3]), 100, T)),
       integer   = as.integer(runif(100) * 10),
       real      = rnorm(100),
       logical   = sample(c(T, F), 100, T),
@@ -47,7 +47,7 @@ saved to transform future datasets into the same exact layout.
     encoder
 
     ## Onehot Specification
-    ## |-   1 Factors  => 5 Indicators 
+    ## |-   1 Factors  => 4 Indicators 
     ## |-   3 Numerics => (NA <- -999)
 
 ### Transforming data.frames
@@ -60,23 +60,42 @@ character vectors to factors first.
     train_data <- predict(encoder, test)
     head(train_data)
 
-    ##      factor_a factor_b factor_c factor_NA factor_NA integer       real logical
-    ## [1,]        1        0        0         0         0       3 -0.3329234       0
-    ## [2,]        1        0        0         0         0       3  1.3631137       1
-    ## [3,]        0        1        0         0         0       0 -0.4691473       1
-    ## [4,]        0        0        0         1         0       3  0.8428756       1
-    ## [5,]        1        0        0         0         0       5 -1.4579937       0
-    ## [6,]        1        0        0         0         0       6 -0.4003059       0
+    ##      factor_a factor_b factor_c factor_NA integer       real logical
+    ## [1,]        1        0        0         0       3 -0.3329234       0
+    ## [2,]        1        0        0         0       3  1.3631137       1
+    ## [3,]        0        1        0         0       0 -0.4691473       1
+    ## [4,]        0        0        0         1       3  0.8428756       1
+    ## [5,]        1        0        0         0       5 -1.4579937       0
+    ## [6,]        1        0        0         0       6 -0.4003059       0
 
 ### NA indicator columns
 
-`addNA=TRUE` will create an indicator column for every valid input
-column. This is useful for algorithms that do not support missing
-values.
+`add_NA_factors=TRUE` (the default) will create an indicator column for
+every factor column. Having NAs as a factor level will result in an
+indicator column being created without using this option.
 
-    #encoder <- onehot(test, addNA=TRUE)
-    #train_data <- predict(encoder, test)
-    #head(train_data)
+    encoder <- onehot(test, add_NA_factors=TRUE)
+
+    ## Warning: Variables excluded for having levels > max_levels: character
+
+    train_data <- predict(encoder, test)
+    head(train_data)
+
+    ##      factor_a factor_b factor_c factor_NA integer       real logical
+    ## [1,]        1        0        0         0       3 -0.3329234       0
+    ## [2,]        1        0        0         0       3  1.3631137       1
+    ## [3,]        0        1        0         0       0 -0.4691473       1
+    ## [4,]        0        0        0         1       3  0.8428756       1
+    ## [5,]        1        0        0         0       5 -1.4579937       0
+    ## [6,]        1        0        0         0       6 -0.4003059       0
+
+### Sentinel values for numeric columns
+
+The `sentinel=VALUE` argument will replace all numeric NAs with the
+provided value. Some ML algorithms such as `randomForest` and `xgboost`
+do not handle NA values. However, by using sentinel values such
+algorithms are usually able to separate them with enough decision-tree
+splits. The default value is `-999`
 
 ### Sparse Matrices
 
@@ -90,11 +109,11 @@ matrices from the `Matrix` package:
     train_data <- predict(encoder, test, sparse=TRUE)
     head(train_data)
 
-    ## 6 x 8 sparse Matrix of class "dgCMatrix"
-    ##      factor_a factor_b factor_c factor_NA factor_NA integer       real logical
-    ## [1,]        1        .        .         .         .       3 -0.3329234       .
-    ## [2,]        1        .        .         .         .       3  1.3631137       1
-    ## [3,]        .        1        .         .         .       . -0.4691473       1
-    ## [4,]        .        .        .         1         .       3  0.8428756       1
-    ## [5,]        1        .        .         .         .       5 -1.4579937       .
-    ## [6,]        1        .        .         .         .       6 -0.4003059       .
+    ## 6 x 7 sparse Matrix of class "dgCMatrix"
+    ##      factor_a factor_b factor_c factor_NA integer       real logical
+    ## [1,]        1        .        .         .       3 -0.3329234       .
+    ## [2,]        1        .        .         .       3  1.3631137       1
+    ## [3,]        .        1        .         .       . -0.4691473       1
+    ## [4,]        .        .        .         1       3  0.8428756       1
+    ## [5,]        1        .        .         .       5 -1.4579937       .
+    ## [6,]        1        .        .         .       6 -0.4003059       .

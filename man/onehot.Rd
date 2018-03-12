@@ -2,25 +2,26 @@
 % Please edit documentation in R/onehot.R
 \name{onehot}
 \alias{onehot}
-\title{Onehot encode a data.frame}
+\title{Onehot Encode a data.frame}
 \usage{
 onehot(data, sentinel = -999, max_levels = 10, add_NA_factors = TRUE)
 }
 \arguments{
 \item{data}{data.frame to convert factors into onehot encoded columns}
 
+\item{sentinel}{Numeric value with which to replace NAs. Applies to numeric
+columns only.}
+
 \item{max_levels}{maximum number of levels to onehot encode per factor
 variable. Factors with levels exceeding this number will be skipped.}
 
-\item{addNA}{if TRUE, all variables get an NA indicator}
-
-\item{stringsAsFactors}{if TRUE, converts character vectors to factors}
+\item{add_NA_factors}{if TRUE, adds NA indicator column for factors.}
 }
 \value{
 a \code{onehot} object descrbing how to transform the data
 }
 \description{
-Onehot encode a data.frame
+Onehot Encode a data.frame
 }
 \details{
 By default, with \code{addNA=FALSE}, no NAs are returned for
@@ -40,11 +41,11 @@ data(iris)
 encoder <- onehot(iris)
 
 ## add NA indicator columns
-encoder <- onehot(iris, addNA=TRUE)
-
-## Convert character fields to factrs
-encoder <- onehot(iris, stringsAsFactors=TRUE)
+encoder <- onehot(iris, add_NA_factors=TRUE)
 
 ## limit which factors are onehot encoded
 encoder <- onehot(iris, max_levels=5)
+
+## Impute numeric NA values with sentinel value
+encoder <- onehot(iris, sentinel=-1)
 }

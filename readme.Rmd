@@ -24,7 +24,7 @@ devtools::install_github("https://github.com/Zelazny7/onehot")
 ```{r}
 set.seed(100)
 test <- data.frame(
-  factor    = factor(sample(c(NA, letters[1:3]), 100, T), exclude=NULL),
+  factor    = factor(sample(c(NA, letters[1:3]), 100, T)),
   integer   = as.integer(runif(100) * 10),
   real      = rnorm(100),
   logical   = sample(c(T, F), 100, T),
@@ -62,15 +62,21 @@ head(train_data)
 
 ### NA indicator columns
 
-`addNA=TRUE` will create an indicator column for every valid input column. This
-is useful for algorithms that do not support missing values.
+`add_NA_factors=TRUE` (the default) will create an indicator column for every factor column. Having NAs as a factor
+level will result in an indicator column being created without using this option.
 
 ```{r}
-#encoder <- onehot(test, addNA=TRUE)
-#train_data <- predict(encoder, test)
-#head(train_data)
+encoder <- onehot(test, add_NA_factors=TRUE)
+train_data <- predict(encoder, test)
+head(train_data)
 ```
 
+
+### Sentinel values for numeric columns 
+
+The `sentinel=VALUE` argument will replace all numeric NAs with the provided value. Some ML algorithms such
+as `randomForest` and `xgboost` do not handle NA values. However, by using sentinel values such algorithms are
+usually able to separate them with enough decision-tree splits. The default value is `-999`
 
 ### Sparse Matrices
 
