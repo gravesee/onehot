@@ -12,7 +12,7 @@ Onehot package
 
     set.seed(100)
     test <- data.frame(
-      factor    = factor(sample(c(NA, letters[1:3]), 100, T), exclude=NULL),
+      factor    = factor(sample(c(NA, letters[1:3]), 100, T)),
       integer   = as.integer(runif(100) * 10),
       real      = rnorm(100),
       logical   = sample(c(T, F), 100, T),
@@ -41,17 +41,14 @@ saved to transform future datasets into the same exact layout.
 
     encoder <- onehot(test)
 
-    ## Warning: Variables excluded for having unsupported types: character
+    ## Warning: Variables excluded for having levels > max_levels: character
 
     ## printe a summary
     encoder
 
-    ## onehot object with following types:
-    ##  |-   1 factors
-    ##  |-   1 integers
-    ##  |-   1 logicals
-    ##  |-   1 numerics
-    ## Producing matrix with 7 columns
+    ## Onehot Specification
+    ## |-   1 Factors  => 4 Indicators 
+    ## |-   3 Numerics => (NA <- -999)
 
 ### Transforming data.frames
 
@@ -63,7 +60,7 @@ character vectors to factors first.
     train_data <- predict(encoder, test)
     head(train_data)
 
-    ##      factor=a factor=b factor=c factor=NA integer       real logical
+    ##      factor_a factor_b factor_c factor_NA integer       real logical
     ## [1,]        1        0        0         0       3 -0.3329234       0
     ## [2,]        1        0        0         0       3  1.3631137       1
     ## [3,]        0        1        0         0       0 -0.4691473       1
@@ -73,24 +70,32 @@ character vectors to factors first.
 
 ### NA indicator columns
 
-`addNA=TRUE` will create an indicator column for every valid input
-column. This is useful for algorithms that do not support missing
-values.
+`add_NA_factors=TRUE` (the default) will create an indicator column for
+every factor column. Having NAs as a factor level will result in an
+indicator column being created without using this option.
 
-    encoder <- onehot(test, addNA=TRUE)
+    encoder <- onehot(test, add_NA_factors=TRUE)
 
-    ## Warning: Variables excluded for having unsupported types: character
+    ## Warning: Variables excluded for having levels > max_levels: character
 
     train_data <- predict(encoder, test)
     head(train_data)
 
-    ##      factor=a factor=b factor=c factor=NA factor=NA integer integer=NA       real real=NA logical logical=NA
-    ## [1,]        1        0        0         0         0       3          0 -0.3329234       0       0          0
-    ## [2,]        1        0        0         0         0       3          0  1.3631137       0       1          0
-    ## [3,]        0        1        0         0         0       0          0 -0.4691473       0       1          0
-    ## [4,]        0        0        0         1         0       3          0  0.8428756       0       1          0
-    ## [5,]        1        0        0         0         0       5          0 -1.4579937       0       0          0
-    ## [6,]        1        0        0         0         0       6          0 -0.4003059       0       0          0
+    ##      factor_a factor_b factor_c factor_NA integer       real logical
+    ## [1,]        1        0        0         0       3 -0.3329234       0
+    ## [2,]        1        0        0         0       3  1.3631137       1
+    ## [3,]        0        1        0         0       0 -0.4691473       1
+    ## [4,]        0        0        0         1       3  0.8428756       1
+    ## [5,]        1        0        0         0       5 -1.4579937       0
+    ## [6,]        1        0        0         0       6 -0.4003059       0
+
+### Sentinel values for numeric columns
+
+The `sentinel=VALUE` argument will replace all numeric NAs with the
+provided value. Some ML algorithms such as `randomForest` and `xgboost`
+do not handle NA values. However, by using sentinel values such
+algorithms are usually able to separate them with enough decision-tree
+splits. The default value is `-999`
 
 ### Sparse Matrices
 
@@ -99,13 +104,13 @@ matrices from the `Matrix` package:
 
     encoder <- onehot(test)
 
-    ## Warning: Variables excluded for having unsupported types: character
+    ## Warning: Variables excluded for having levels > max_levels: character
 
     train_data <- predict(encoder, test, sparse=TRUE)
     head(train_data)
 
     ## 6 x 7 sparse Matrix of class "dgCMatrix"
-    ##      factor=a factor=b factor=c factor=NA integer       real logical
+    ##      factor_a factor_b factor_c factor_NA integer       real logical
     ## [1,]        1        .        .         .       3 -0.3329234       .
     ## [2,]        1        .        .         .       3  1.3631137       1
     ## [3,]        .        1        .         .       . -0.4691473       1

@@ -4,7 +4,7 @@
 \alias{make_names}
 \title{Make column names for a onehot object}
 \usage{
-make_names(x)
+make_names(info, sep)
 }
 \arguments{
 \item{x}{a \code{\link{onehot}} object}
@@ -15,5 +15,5 @@ Make column names for a onehot object
 \examples{
 data(iris)
 encoder <- onehot(iris)
-make_names(encoder)
+make_names(encoder$Species)
 }

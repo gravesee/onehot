@@ -1,17 +1,38 @@
-#' @importFrom Rcpp sourceCpp
 #' @importFrom Matrix sparseMatrix
-#' @useDynLib onehot
 NULL
 
-allowed_classes <- c("integer", "numeric", "factor", "logical")
-
-column_info <- function(x, name) {
-  list(
-    name = name,
-    type = class(x),
-    levels = levels(x))
+#' @export
+column_info <- function(name, type, ...) {
+  res <- structure(list(name=name, type=type), class="column_info")
+  switch(type,
+    "numeric" = column_info_numeric(res, ...),
+    "factor"  = column_info_factor(res, ...),
+    "default" = stop("Unsupported column info type"))
 }
 
+#' @export
+column_info_numeric <- function(x, sentinel) {
+  x$sentinel <- sentinel
+  class(x) <- c(class(x), "column_info_numeric")
+  x
+}
+
+#' @export
+column_info_factor <- function(x, levels) {
+  x$levels <- levels
+  class(x) <- c(class(x), "column_info_factor")
+  x
+}
+
+#' @export
+summary.column_info_factor <- function(object, ...) {
+  with(object, c(type=2, ncol=length(levels), nas=sum(is.na(levels))))
+}
+
+#' @export
+summary.column_info_numeric <- function(object, ...) {
+  with(object, c(type=1, ncol=1, nas=0))
+}
 
 #' Summarize onehot object
 #' @param object a onehot object
@@ -28,24 +49,7 @@ column_info <- function(x, name) {
 #' summary(encoder)
 #' @export
 summary.onehot <- function(object, ...) {
-
-  addNA <- attr(object, "addNA")
-
-  types <- sapply(object, "[[", "type")
-  ncols <- vapply(object, function(info) {
-    switch(info$type,
-      "factor" = length(info$levels),
-      "numeric" = 1L,
-      "integer" = 1L,
-      "logical" = 1L,
-      0L)
-  }, FUN.VALUE = integer(1))
-
-  list(
-    types=table(types),
-    ncols=sum(ncols),
-    nas=if (addNA) length(object) else 0)
-
+  t(sapply(object, summary))
 }
 
 
@@ -54,56 +58,76 @@ summary.onehot <- function(object, ...) {
 #' @param ... other arguments pass to or from other functions
 #' @export
 print.onehot <- function(x, ...) {
-  addNA <- attr(x, "addNA")
+
+  sentinel <- attr(x, "sentinel")
   s <- summary(x)
-  cat("onehot object with following types:\n")
-  cat(sprintf(" |- %3d %ss\n", s$types, names(s$types)), sep="")
-  if (addNA) cat(sprintf(" |- %3d NA indicators\n", s$nas), sep="")
-  cat(sprintf("Producing matrix with %d columns\n", s$ncols + s$nas))
+  nf <- sum(s[,'type'] == 2)
+  nn <- sum(s[,'type'] == 1)
+  ni <- sum(s[s[,'type'] == 2, 'ncol'])
+
+  cat(
+    "Onehot Specification",
+    sprintf("|- %3d Factors  => %d Indicators ", nf, ni),
+    sprintf("|- %3d Numerics => (NA <- %.0f)", nn, sentinel),
+    sep="\n")
+
+}
+
+get_column_info_ <- function(data, add_NA_factors, sentinel) {
+
+  res <- list()
+
+  for (i in seq_along(data)) {
+    name <- names(data[i])
+    x <- data[[i]]
+
+    if (!(is.factor(x) || is.character(x))) {
+      res[[i]] <- column_info(name, "numeric", sentinel=sentinel)
+    } else {
+
+      if (add_NA_factors) {
+        res[[i]] <- column_info(name, "factor", levels=levels(addNA(factor(x))))
+      } else {
+        res[[i]] <- column_info(name, "factor", levels=levels(factor(x)))
+      }
+    }
+  }
+
+  names(res) <- names(data)
+  res
 }
 
 
-#' Onehot encode a data.frame
+#' Onehot Encode a data.frame
+#'
 #' @param data data.frame to convert factors into onehot encoded columns
-#' @param addNA if TRUE, all variables get an NA indicator
-#' @param stringsAsFactors if TRUE, converts character vectors to factors
+#' @param sentinel Numeric value with which to replace NAs. Applies to numeric
+#' columns only.
 #' @param max_levels maximum number of levels to onehot encode per factor
 #' variable. Factors with levels exceeding this number will be skipped.
-#' @details By default, with \code{addNA=FALSE}, no NAs are returned for
-#' non-factor columns. Indicator columns are created for factor levels and NA
-#' factors are ignored. The exception is when NA is an explicit factor level.
+#' @param add_NA_factors if TRUE, adds NA indicator column for factors.
 #'
-#' \code{stringsAsFactrs=TRUE} will convert character columns to factors first.
-#' Other wise characters are ignored. Only factor, numeric, integer, and logical
-#' vectors are valid for onehot. Other classes will be skipped entirely.
-#'
-#' \code{addNA=TRUE} will create indicator columns for every field. This will
-#' add ncols columns to the output matrix. A sparse matrix may be better in
-#' such cases.
 #' @return a \code{onehot} object descrbing how to transform the data
 #' @examples
 #' data(iris)
 #' encoder <- onehot(iris)
 #'
 #' ## add NA indicator columns
-#' encoder <- onehot(iris, addNA=TRUE)
-#'
-#' ## Convert character fields to factrs
-#' encoder <- onehot(iris, stringsAsFactors=TRUE)
+#' encoder <- onehot(iris, add_NA_factors=TRUE)
 #'
 #' ## limit which factors are onehot encoded
 #' encoder <- onehot(iris, max_levels=5)
+#'
+#' ## Impute numeric NA values with sentinel value
+#' encoder <- onehot(iris, sentinel=-1)
 #' @export
-onehot <- function(data, addNA=FALSE, stringsAsFactors=FALSE, max_levels=10) {
+onehot <- function(data, sentinel=-999, max_levels=10, add_NA_factors=TRUE) {
+
   stopifnot(inherits(data, "data.frame"))
 
-  if (stringsAsFactors) {
-    for (i in seq_along(data)) {
-      if (is.character(data[[i]])) data[[i]] <- factor(data[[i]])
-    }
-  }
+  info <- get_column_info_(data, add_NA_factors, sentinel)
 
-  nlevels <- sapply(data, function(x) length(levels(x)))
+  nlevels <- sapply(info, function(x) length(x$levels))
   f <- nlevels <= max_levels
 
   if (any(!f)) {
@@ -112,18 +136,9 @@ onehot <- function(data, addNA=FALSE, stringsAsFactors=FALSE, max_levels=10) {
       call. = F)
   }
 
-  k <- sapply(data, class) %in% allowed_classes
-  if (length(names(data)[!k])) {
-    warning(sprintf("Variables excluded for having unsupported types: %s",
-      names(data)[!k]), call. = F)
-  }
-
-  n <- names(data)[f & k]
-
-  info <- Map(column_info, data[n], n)
-
-  res <- structure(info, class = "onehot")
+  res <- structure(info[f], class = "onehot")
   attr(res, "call") <- match.call()
-  attr(res, "addNA") <- addNA
+  attr(res, "sentinel") <- sentinel
+  attr(res, "add_NA_factors") <- add_NA_factors
   res
 }

@@ -4,7 +4,7 @@
 \alias{predict.onehot}
 \title{Predict onehot objects}
 \usage{
-\method{predict}{onehot}(object, data, sparse = FALSE, ...)
+\method{predict}{onehot}(object, data, sparse = FALSE, sep = "_", ...)
 }
 \arguments{
 \item{object}{an object of class \code{\link{onehot}}}
