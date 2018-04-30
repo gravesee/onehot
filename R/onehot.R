@@ -86,9 +86,9 @@ get_column_info_ <- function(data, add_NA_factors, sentinel) {
     } else {
 
       if (add_NA_factors) {
-        res[[i]] <- column_info(name, "factor", levels=levels(addNA(factor(x))))
+        res[[i]] <- column_info(name, "factor", levels=levels(addNA(x)))
       } else {
-        res[[i]] <- column_info(name, "factor", levels=levels(factor(x)))
+        res[[i]] <- column_info(name, "factor", levels=levels(x))
       }
     }
   }
