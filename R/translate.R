@@ -1,4 +1,9 @@
 ## functions to translate rules into other language code
+level_for_sas_name <- function(lvl) {
+  lvl <- gsub("^-(\\d+)$", "neg\\1", lvl)
+  lvl <- gsub("[^A-Za-z0-9]", "_", lvl) # replace other strange characters with _
+  lvl
+}
 
 #' Generate SAS code for onehot object
 #' @param x a \code{onehot} object
@@ -31,14 +36,16 @@ sas_onehot_factor <- function(x, sep) {
 
   ifelse(is.na(x$levels),
     sprintf("%s%s%s = missing(%s);", x$name, sep, "NA", x$name),
-    sprintf("%s%s%s = (%s = %s);", x$name, sep, x$levels, x$name, x$levels))
+    sprintf("%s%s%s = (%s = \"%s\");", x$name, sep, level_for_sas_name(x$levels), x$name, x$levels))
 
 }
 
 #' @export
 sas_onehot_numeric <- function(x, sentinel) {
 
-  sprintf("if missing(%s) then %s = %.0f;", x$name, x$name, sentinel)
+  ifelse(is.na(sentinel),
+    sprintf("if missing(%s) then %s = .;", x$name, x$name),
+    sprintf("if missing(%s) then %s = %.0f;", x$name, x$name, sentinel))
 
 }
 
