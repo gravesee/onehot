@@ -3,13 +3,12 @@ preprocess <- function(oh, x) UseMethod("preprocess")
 
 #' @export
 preprocess.column_info_factor <- function(oh, x, ...) {
-
   x <- factor(as.character(x))
   if (any(is.na(oh$levels))) {
     x <- addNA(x)
   }
 
-  levels(x) <- oh$levels
+  levels(x) <- oh$levels[match(levels(x), oh$levels)] # weird re-ordering can happen on levels(x)
   x
 }
 
